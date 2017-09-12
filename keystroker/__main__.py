@@ -9,8 +9,8 @@ def main():
     """main argparse for sending keystrokes through console"""
     parser = argparse.ArgumentParser(
         prog="keystroker",
-        description="Sends one or more keystrokes "
-                    "combinations to the active window."
+        description="Sends one or more keystrokes combinations to the active "
+                    "window."
     )
 
     group = parser.add_mutually_exclusive_group(required=True)

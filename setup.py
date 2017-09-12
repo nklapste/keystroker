@@ -15,32 +15,26 @@ def load_long_description():
 setup(
     name="keystroker",
     version="0.0.0",
-    packages=find_packages(exclude=["test"]),
 
-    # Project uses reStructuredText, so ensure that the docutils get
-    # installed or upgraded on the target machine
-    install_requires=[],
-
-    package_data={
-        # If any package contains *.txt or *.rst files, include them:
-        '': ['*.txt', '*.rst'],
-        # And include any *.msg files found in the 'hello' package, too:
-        'hello': ['*.msg'],
-    },
-
-    # metadata for upload to PyPI
     author="Nathan Douglas Klapstein",
     author_email="nklapste@ualberta.ca",
+    license="MIT",
     description="Package that allows for direct windows "
                 "keystrokes to be sent onto executed PC",
     long_description=load_long_description(),
-    license="PSF",
     keywords="send keys keystroker key stroker windows",
-    url="",
+    url="https://github.com/nklapste/keystroker",
     download_url="",
     classifiers="",
 
-
-    # could also include long_description, download_url, classifiers, etc.
-
+    packages=find_packages(exclude=["test"]),
+    package_data={
+        '': ['LICENSE', 'README.md'],
+    },
+    entry_points={
+        'console_scripts': [
+            'keystroker = keystroker.__main__:main'
+        ]
+    },
+    install_requires=[],
 )
