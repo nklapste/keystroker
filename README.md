@@ -9,9 +9,9 @@ Python 3.5+ (Lower Python 3 installs may work but are not supported)
 
 
 ## Installation
-~~To install via pip use the following command:
+~~To install via pip use the following command:~~
 
-~~`pip install keystroker`
+~~`pip install keystroker`~~
 
 Otherwise you can install keystroker through the source code by running the 
 following command within the extracted keystroker source directory:
