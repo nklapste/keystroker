@@ -4,6 +4,8 @@ to the active window.
 
 Copyright (C) 2003 Ollie Rutherfurd <oliver@rutherfurd.net>
 
+Updated to Python3 by Nathan Klapstein <nklapste@ualberta.ca>
+
 Python License
 
 Version 0.3 (2003-06-14)
