@@ -1,24 +1,22 @@
-"""
-sendkeys.py - Sends one or more keystroke or keystroke combinations
-to the active window.
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
+"""Functionality definitions for keystroker
+
+See :func:`.sendkeys.sendkeys` for main usage.
 
 Copyright (C) 2003 Ollie Rutherfurd <oliver@rutherfurd.net>
 
 Updated to Python3 by Nathan Klapstein <nklapste@ualberta.ca>
-
-Python License
-
-Version 0.3 (2003-06-14)
-
-$Id$
 """
 
 import time
+from typing import List, Tuple, Dict
 
 from keystroker.sendkeys_ctypes import char2keycode, key_up, key_down,\
     toggle_numlock
 
-__all__ = ["KeySequenceError", "SendKeys"]
+__all__ = ["KeySequenceError", "sendkeys"]
 
 KEYEVENTF_KEYUP = 2
 VK_SHIFT = 16
@@ -59,8 +57,6 @@ CODES = {
     "SPACE": 32,
     "TAB": 9,
     "UP": 38,
-    "DOWN": 40,
-    "BACKSPACE": 8,
     "F1": 112,
     "F2": 113,
     "F3": 114,
@@ -121,12 +117,12 @@ class KeySequenceError(Exception):
         return " ".join(self.args)
 
 
-def _append_code(keys, code):
+def _append_code(keys: List[Tuple[int, bool]], code: int):
     keys.append((code, True))
     keys.append((code, False))
 
 
-def _next_char(chars, error_msg=None):
+def _next_char(chars: List[str], error_msg: str = None):
     if error_msg is None:
         error_msg = "expected another character"
     try:
@@ -135,7 +131,7 @@ def _next_char(chars, error_msg=None):
         raise KeySequenceError(error_msg)
 
 
-def _handle_char(c, keys, shift):
+def _handle_char(c: str, keys: List[Tuple[int, bool]], shift: bool):
     if shift:
         keys.append((MODIFIERS["+"], True))
     _append_code(keys, char2keycode(c))
@@ -143,27 +139,30 @@ def _handle_char(c, keys, shift):
         keys.append((MODIFIERS["+"], False))
 
 
-def _release_modifiers(keys, modifiers):
+def _release_modifiers(keys: List[Tuple[int, bool]],
+                       modifiers: Dict[str, bool]):
     for c in modifiers.keys():
         if modifiers[c]:
             keys.append((MODIFIERS[c], False))
             modifiers[c] = False
 
 
-def str2keys(key_string, with_spaces=False, with_tabs=False,
-             with_newlines=False):
-    """
-    Converts `key_string` string to a list of 2-tuples,
-    ``(keycode,down)``, which  can be given to `playkeys`.
+def str2keys(key_string: str, with_spaces: bool = False,
+             with_tabs: bool = False, with_newlines: bool = False) \
+        -> List[Tuple[int, bool]]:
+    """Converts `key_string` string to a list of 2-tuples,
+    ``(keycode, down)``, which  can be given to :func:`.sendkeys.playkeys`.
 
-    `key_string` : str
-        A string of keys.
-    `with_spaces` : bool
-        Whether to treat spaces as ``{SPACE}``. If `False`, spaces are ignored.
-    `with_tabs` : bool
-        Whether to treat tabs as ``{TAB}``. If `False`, tabs are ignored.
-    `with_newlines` : bool
-        Whether to treat newlines as ``{ENTER}``. If `False`, newlines are ignored.
+    :param key_string: a string of keys
+
+    :param with_spaces: boolean indicating whether to treat spaces as
+        ``{SPACE}``. If :obj:`False`, spaces are ignored
+
+    :param with_tabs: boolean indicating whether to treat tabs as ``{TAB}``.
+        If :obj:`False`, tabs are ignored
+
+    :param with_newlines: boolean indicating whether to treat newlines as
+        ``{ENTER}``. If :obj:`False`, newlines are ignored
     """
     # reading input as a stack
     chars = list(key_string)
@@ -198,8 +197,8 @@ def str2keys(key_string, with_spaces=False, with_tabs=False,
                 else:
                     # if we need shift for this char and
                     # it's not already pressed
-                    shift = (c.isupper() or c in SHIFT.keys()) and not \
-                    modifiers["+"]
+                    shift = (c.isupper() or c in SHIFT.keys()) and\
+                            (not modifiers["+"])
                     if c in SHIFT.keys():
                         _handle_char(SHIFT[c], keys, shift)
                     else:
@@ -241,7 +240,7 @@ def str2keys(key_string, with_spaces=False, with_tabs=False,
                         if len(code) > 1:
                             raise KeySequenceError("Unknown code: %s" % code)
                         # handling both {e 3} and {+}, {%}, {^}
-                        shift = code in ESCAPE and not code in NO_SHIFT
+                        shift = (code in ESCAPE) and (code not in NO_SHIFT)
                         # do shift if we've got an upper case letter
                         shift = shift or code[0].isupper()
                         c = code
@@ -278,8 +277,8 @@ def str2keys(key_string, with_spaces=False, with_tabs=False,
                 _append_code(keys, CODES["TAB"])
             else:
                 # if we need shift for this char and it"s not already pressed
-                shift = (c.isupper() or c in SHIFT.keys()) and not modifiers[
-                    "+"]
+                shift = (c.isupper() or c in SHIFT.keys()) and\
+                        (not modifiers["+"])
                 if c in SHIFT.keys():
                     _handle_char(SHIFT[c], keys, shift)
                 else:
@@ -290,19 +289,17 @@ def str2keys(key_string, with_spaces=False, with_tabs=False,
     return keys
 
 
-def playkeys(keys, pause=.05):
-    """
-    Simulates pressing and releasing one or more keys.
+def playkeys(keys: List[Tuple[int, bool]], pause: float = 0.05) -> None:
+    """Simulates pressing and releasing one or more keys.
 
-    `keys` : str
-        A list of 2-tuples consisting of ``(keycode,down)``
-        where `down` is `True` when the key is being pressed
-        and `False` when it's being released.
+    :param keys: a list of 2-tuples consisting of ``(keycode, down)``
+        where ``down`` is :obj:`True` when the key is being pressed
+        and :obj:`False` when it's being released
 
-        `keys` is returned from `str2keys`.
-    `pause` : float
-        Number of seconds between releasing a key and pressing the
-        next one.
+        ``keys`` is returned from :func:`.sendkeys.str2keys`
+
+    :param pause: number of seconds between releasing a key and pressing the
+        next one
     """
     for (vk, arg) in keys:
         if vk:
@@ -316,32 +313,34 @@ def playkeys(keys, pause=.05):
             time.sleep(arg)
 
 
-def sendkeys(keys, pause=0.05, with_spaces=False, with_tabs=False,
-             with_newlines=False, turn_off_numlock=True):
-    """
-    Sends keys to the current window.
+def sendkeys(keys: str, pause=0.05, with_spaces: bool = False,
+             with_tabs: bool = False, with_newlines: bool = False,
+             turn_off_numlock: bool = True) -> None:
+    """Sends keys to the current window.
 
-    `keys` : str
-        A string of keys.
-    `pause` : float
-        The number of seconds to wait between sending each key
+    :param keys: a string of keys
+
+     :param pause: number of seconds to wait between sending each key
         or key combination.
-    `with_spaces` : bool
-        Whether to treat spaces as ``{SPACE}``. If `False`, spaces are ignored.
-    `with_tabs` : bool
-        Whether to treat tabs as ``{TAB}``. If `False`, tabs are ignored.
-    `with_newlines` : bool
-        Whether to treat newlines as ``{ENTER}``. If `False`, newlines are ignored.
-    `turn_off_numlock` : bool
-        Whether to turn off `NUMLOCK` before sending keys.
 
-    example::
+      :param with_spaces: boolean indicating whether to treat spaces as
+        ``{SPACE}``. If :obj:`False`, spaces are ignored
+
+    :param with_tabs: boolean indicating whether to treat tabs as ``{TAB}``.
+        If :obj:`False`, tabs are ignored
+
+    :param with_newlines: boolean indicating whether to treat newlines as
+        ``{ENTER}``. If :obj:`False`, newlines are ignored
+
+    :param turn_off_numlock: boolean indicating whether to turn off
+        `NUMLOCK` before sending keys.
+
+    .. example::
 
         SendKeys("+hello{SPACE}+world+1")
 
     would result in ``"Hello World!"``
     """
-
     restore_numlock = False
     try:
         # read keystroke keys into a list of 2 tuples [(key,up),]
@@ -359,4 +358,3 @@ def sendkeys(keys, pause=0.05, with_spaces=False, with_tabs=False,
         if restore_numlock and turn_off_numlock:
             key_down(CODES["NUMLOCK"])
             key_up(CODES["NUMLOCK"])
-
