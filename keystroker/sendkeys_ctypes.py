@@ -4,6 +4,8 @@
 """Sendkeys module moved back to ctypes. For x64 systems, for example.
 
 (c) 2009 Igor S. Mandrigin, Agnitum Ltd.
+
+Updated to Python3 by Nathan Klapstein <nklapste@ualberta.ca>
 """
 
 from ctypes import windll
