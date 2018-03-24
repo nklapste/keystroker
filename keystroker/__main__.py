@@ -15,7 +15,7 @@ def main():
         description="Sends one or more keystrokes combinations to the active "
                     "window."
     )
-    group = parser.add_argument_group(title="Keystroke source")
+    group = parser.add_argument_group(title="Keystroke(s) source")
     group = group.add_mutually_exclusive_group(required=True)
     group.add_argument("-f", "--file", type=str,
                        help="Path to file containing keystrokes to send")
@@ -32,10 +32,10 @@ def main():
     args = parser.parse_args()
 
     if args.delay < 0:
-        raise ValueError("`DELAY` must be >= 0.0")
+        raise ValueError("`delay` must be >= 0.0")
 
     if args.pause < 0:
-        raise ValueError("`PAUSE` must be >= 0.0")
+        raise ValueError("`pause` must be >= 0.0")
 
     if args.file is not None:
         with open(args.file) as f:
