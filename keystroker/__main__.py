@@ -1,4 +1,7 @@
-"""Entry point script for sendkeys"""
+#!/usr/bin/python3
+# -*- coding: utf-8 -*-
+
+"""Entry point script for keystroker"""
 
 import argparse
 
@@ -12,8 +15,8 @@ def main():
         description="Sends one or more keystrokes combinations to the active "
                     "window."
     )
-
-    group = parser.add_mutually_exclusive_group(required=True)
+    group = parser.add_argument_group(title="Keystroke source")
+    group = group.add_mutually_exclusive_group(required=True)
     group.add_argument("-f", "--file", type=str,
                        help="Path to file containing keystrokes to send")
     group.add_argument("-k", "--keys", type=str,
